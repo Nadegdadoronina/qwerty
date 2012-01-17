@@ -1,0 +1,12 @@
+Martix
+
+real    0m24.813s
+user    0m0.015s
+sys     0m0.015s
+
+Table
+
+real    0m13.931s
+user    0m0.000s
+sys     0m0.031s
+
