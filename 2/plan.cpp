@@ -1,39 +1,68 @@
 #include <iostream>
+#include <vector>
 using namespace std;
-char Sect [(1<<30)+100];
+void BootSector (long pos, FILE* in)
+{
+	char Buffer[512];
+	char filename[50];
+	sprintf(filename, "file%ld", pos);
+
+	FILE *out = fopen(filename, "wb");
+	if (out == NULL)
+	{
+		cerr<<"Error fopen."<<endl;
+	}
+	fseek(in, pos, SEEK_SET);
+	fread(Buffer, 1, 512, in);
+	fwrite(Buffer, 1, 512, out);
+	if(ferror(out))
+	{
+		cerr<<"Error fwrite."<<endl;
+	}
+	
+	if(fclose(out))
+	{
+		cerr<<"Error fclose."<<endl;
+	}
+}
 int main ()
 {
-	FILE *in = fopen("D:\\Надя\\ОС\\plan9", "rb");
+	vector <long> Offset; 
+	FILE *in = fopen("plan9", "rb");
+	if(in == NULL)
+	{
+		cerr<<"Error fopen."<<endl;
+	}
 	//0x55 0xaa
 	char s, p, byte;
 	int i = 1, begin;
 	
-	fscanf(in, "%c", &p);
-	Sect[0] = p;
+	p = fgetc(in);
 	while (!feof(in))
 	{
-		fscanf(in,"%c", &s);
-		Sect[i] = s;
+		s = fgetc(in);
 		++i;
 		if(s == char(0xAA) && p == char(0x55))
 		{
 			if(i >= 512)
 			{
 				begin = i - 512;
-				char filename[50];
-				sprintf(filename, "D:\\Надя\\ОС\\file%d", i);
-				FILE *out = fopen(filename, "wb");
-
-				for(int j = begin; j < i; ++j)
-				{
-					byte = Sect[j];
-					fprintf(out, "%c", byte);
-				}
-				 fclose(out);
+				Offset.push_back(begin);
 			}
 			
 		}
 		p = s;
+	}
+	vector <long> :: iterator it;  
+	for(it = Offset.begin(); it < Offset.end(); ++it)
+	{
+
+		BootSector(*it, in);
+	}
+	//fclose(in);
+	if(fclose(in))
+	{
+		cerr<<"Error fclose."<<endl;
 	}
 	return 0;
 }
