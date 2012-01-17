@@ -11,6 +11,7 @@ void BootSector (long pos, FILE* in)
 	if (out == NULL)
 	{
 		cerr<<"Error fopen."<<endl;
+		return;
 	}
 	fseek(in, pos, SEEK_SET);
 	fread(Buffer, 1, 512, in);
@@ -18,11 +19,13 @@ void BootSector (long pos, FILE* in)
 	if(ferror(out))
 	{
 		cerr<<"Error fwrite."<<endl;
+		return;
 	}
 	
 	if(fclose(out))
 	{
 		cerr<<"Error fclose."<<endl;
+		return;
 	}
 }
 int main ()
@@ -32,6 +35,7 @@ int main ()
 	if(in == NULL)
 	{
 		cerr<<"Error fopen."<<endl;
+		return;
 	}
 	//0x55 0xaa
 	char s, p, byte;
@@ -47,7 +51,15 @@ int main ()
 			if(i >= 512)
 			{
 				begin = i - 512;
-				Offset.push_back(begin);
+				try 
+				{
+					Offset.push_back(begin);
+				}
+				catch(exception e)
+				{
+					cerr<<"Error. not enough memory."<<endl;
+					return;
+				}
 			}
 			
 		}
