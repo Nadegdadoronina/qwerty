@@ -21,9 +21,9 @@ void files(char*file_name)
 			Nums.push_back(num);
 		}
 	}
-	catch(exeption e)
+	catch(exception e)
 	{
-		cerr<<"Error. not enough memory."<<file_name<<endl;
+		cerr<<"Error. not enough memory."<<endl;
 		return;
 	}
 
@@ -47,9 +47,9 @@ int main(int args, char*argv [])
 	{
 		sort(Nums.begin(), Nums.end());
 	}
-	catch(exeption e)
+	catch(exception e)
 	{
-		cerr<<"Error! "<<file_name<<endl;
+		cerr<<"Error! "<<endl;
 	}
 	
 	for(vector<int>::iterator it = Nums.begin(); it != Nums.end(); ++it)
