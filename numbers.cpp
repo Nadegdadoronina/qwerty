@@ -13,16 +13,29 @@ void files(char*file_name)
 		return;
 	}
 	int r, num;
-	
-	while ((r = fscanf(in, "%d", &num)) > 0)
+
+	try
 	{
-		Nums.push_back(num);
+		while ((r = fscanf(in, "%d", &num)) > 0)
+		{
+			Nums.push_back(num);
+		}
 	}
+	catch(exeption e)
+	{
+		cerr<<"Error. not enough memory."<<file_name<<endl;
+		return;
+	}
+
 	if (r!=EOF)
 	{
-		cerr<<"Bad file"<<file_name<<endl;
+		cerr<<"Bad file "<<file_name<<endl;
+		return;
 	}
-	
+	if (fclose(in))
+	{
+		cerr<<"Bad file "<<file_name<<endl;
+	}
 }
 int main(int args, char*argv [])
 {
@@ -30,12 +43,19 @@ int main(int args, char*argv [])
 	{
 		files(argv[i]);
 	}
-	sort(Nums.begin(), Nums.end());
-	
+	try
+	{
+		sort(Nums.begin(), Nums.end());
+	}
+	catch(exeption e)
+	{
+		cerr<<"Error! "<<file_name<<endl;
+	}
 	
 	for(vector<int>::iterator it = Nums.begin(); it != Nums.end(); ++it)
 	{
 		cout << *it<<' ';
 	}
+	
 	return 0;
 }
