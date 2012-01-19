@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdio>
 #include <vector>
 using namespace std;
 void BootSector (long pos, FILE* in)
@@ -13,15 +14,29 @@ void BootSector (long pos, FILE* in)
 		cerr<<"Error fopen."<<endl;
 		return;
 	}
-	fseek(in, pos, SEEK_SET);
-	fread(Buffer, 1, 512, in);
-	fwrite(Buffer, 1, 512, out);
+	
+	if (fseek(in, pos, SEEK_SET))
+	{
+		cerr<<"Error fseek."<<endl;
+		return;
+	}
+		
+	if (fread(Buffer, 1, 512, in) != 512)
+	{
+		cerr<<"Error fread."<<endl;
+		return;
+	}
+	if (fwrite(Buffer, 1, 512, out) != 512)
+	{
+		cerr<<"Error fwrite."<<endl;
+		return;
+	}
 	if(ferror(out))
 	{
 		cerr<<"Error fwrite."<<endl;
 		return;
 	}
-	
+
 	if(fclose(out))
 	{
 		cerr<<"Error fclose."<<endl;
@@ -35,43 +50,51 @@ int main ()
 	if(in == NULL)
 	{
 		cerr<<"Error fopen."<<endl;
-		return;
+		return 0;
 	}
 	//0x55 0xaa
 	char s, p, byte;
 	int i = 1, begin;
-	
+
 	p = fgetc(in);
-	while (!feof(in))
+	if(ferror(in))
 	{
-		s = fgetc(in);
-		++i;
-		if(s == char(0xAA) && p == char(0x55))
+		cerr<<"Error fgetc."<<endl;
+		return 0;
+	}
+	try
+	{
+		while (!feof(in))
 		{
-			if(i >= 512)
+			s = fgetc(in);
+			if(ferror(in))
 			{
-				begin = i - 512;
-				try 
-				{
-					Offset.push_back(begin);
-				}
-				catch(exception e)
-				{
-					cerr<<"Error. not enough memory."<<endl;
-					return;
-				}
+				cerr<<"Error fgetc."<<endl;
+				return 0;
 			}
-			
+			++i;
+			if(s == char(0xAA) && p == char(0x55))
+			{
+				if(i >= 512)
+				{
+					begin = i - 512;
+						Offset.push_back(begin);
+				}
+
+			}
+			p = s;
 		}
-		p = s;
+	}
+	catch(exception e)
+	{
+		cerr<<"Not enougth."<<endl;
+		return 0;	
 	}
 	vector <long> :: iterator it;  
 	for(it = Offset.begin(); it < Offset.end(); ++it)
 	{
-
 		BootSector(*it, in);
 	}
-	//fclose(in);
 	if(fclose(in))
 	{
 		cerr<<"Error fclose."<<endl;
