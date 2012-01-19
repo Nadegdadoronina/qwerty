@@ -13,6 +13,7 @@ char* code="org 0x7c00\n"
 "	mov cx, 0x0002\n"
 "	mov bx, buff\n"
 "	int 0x13\n"
+"	jc @err\n"
 "\n"
 "	mov cx, end2-buff\n"
 "	mov di, buff\n"
@@ -68,8 +69,6 @@ char* code="org 0x7c00\n"
 "db \"CRC don't equal!\"\n"
 "crc32:\n"
 "dd 0x%X\n"
-"crcpoly:\n"
-"	dd 0xEDB88320\n"
 "current_crc:\n"
 "	dd 0xFFFFFFFF\n"
 "sectors:\n"
@@ -179,8 +178,12 @@ int main(int argc, char* argv[])
 	if (fclose(out))
 	{
 		fprintf(stderr, "Can't close boot.asm\n");
+		return 0;
 	}
 
-	system("nasm boot.asm -o boot.bin");
+	if (system("nasm boot.asm -o boot.bin") == -1)
+	{
+		fprintf(stderr,"Can't write to boot.asm\n");
+	}
 	return 0;
 }
